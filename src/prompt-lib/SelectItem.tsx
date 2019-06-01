@@ -1,6 +1,6 @@
-import * as React from "react";
 import { Box, Color } from "ink";
-import { BACK_SYMBOL } from "../utils";
+import * as React from "react";
+import { BACK_SYMBOL } from "./helpers";
 import { Spinner } from "./Spinner";
 import { SpinnerState } from "./types";
 import { useStdin } from "./useStdin";
@@ -24,13 +24,17 @@ function renderSelectIndicator(
     return BACK_SYMBOL;
   }
 
-  if (spinnerState === "running") {
+  if (!spinnerState) {
+    return figures.pointer;
+  }
+
+  if (spinnerState.state === "running") {
     return <Spinner />;
   }
-  if (spinnerState === "failed") {
+  if (spinnerState.state === "failed") {
     return <Color red>{figures.cross}</Color>;
   }
-  if (spinnerState === "succeeded") {
+  if (spinnerState.state === "succeeded") {
     return <Color green>{figures.tick}</Color>;
   }
 
@@ -46,6 +50,21 @@ const SelectIndicator: React.FC<{
   </Box>
 );
 
+function renderDescription(props: Props) {
+  if (props.spinnerState && props.spinnerState.message) {
+    if (
+      props.spinnerState.state === "running" ||
+      props.spinnerState.state === "succeeded"
+    ) {
+      return <Color green>{props.spinnerState.message}</Color>;
+    } else if (props.spinnerState.state === "failed") {
+      return <Color red>{props.spinnerState.message}</Color>;
+    }
+  } else {
+    return <Color dim>{props.description || ""}</Color>;
+  }
+}
+
 export const SelectItem: React.FC<Props> = props => {
   const indicator = (
     <SelectIndicator
@@ -54,13 +73,14 @@ export const SelectItem: React.FC<Props> = props => {
     />
   );
 
-  useStdin(async action => {
-    if (props.focus) {
-      if (action === "submit") {
+  useStdin(
+    async actionKey => {
+      if (props.focus && actionKey === "submit") {
         await props.onSelect(props.value);
       }
-    }
-  });
+    },
+    [props.focus, props.value],
+  );
 
   return (
     <Box>
@@ -72,7 +92,7 @@ export const SelectItem: React.FC<Props> = props => {
           props.label.padEnd(20)
         )}
       </Box>
-      {props.description && <Color dim>{props.description}</Color>}
+      {renderDescription(props)}
     </Box>
   );
 };

@@ -2,7 +2,7 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": { "*": ["types/*"] },
-    "outDir": "build/dist",
+    "outDir": "dist",
     "module": "commonjs",
     "target": "es6",
     "lib": ["es6", "dom"],
@@ -11,7 +11,9 @@
     "moduleResolution": "node",
     "rootDir": "src",
     "strict": true,
-    "esModuleInterop": true
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true
   },
-  "exclude": ["node_modules", "build", "src/introspect"]
+  "exclude": ["node_modules", "dist", "src/introspect"]
 }

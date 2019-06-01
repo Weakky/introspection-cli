@@ -14,14 +14,17 @@ interface BaseStyle {
 export interface InputElement<T extends object = any> extends BaseStyle {
   type: "text-input";
   label: string;
+  identifier: Exclude<keyof SubType<T, string | number | undefined>, undefined>;
   placeholder?: string;
-  identifier: Exclude<keyof SubType<T, string | undefined>, undefined>;
   mask?: string;
 }
 
-export type SpinnerState = "running" | "succeeded" | "failed";
+export type SpinnerState = {
+  state: "running" | "succeeded" | "failed";
+  message?: string;
+};
 
-export interface SelectElement extends BaseStyle {
+export interface SelectElement<T extends object = any> extends BaseStyle {
   type: "select";
   label: string;
   value?: any;
@@ -32,6 +35,7 @@ export interface SelectElement extends BaseStyle {
    */
   onSelect?: (params: {
     value?: any;
+    formValues: T;
     startSpinner: () => void;
     stopSpinner: (state: Exclude<SpinnerState, "running">) => void;
     submitPrompt: () => void;
@@ -50,8 +54,8 @@ export interface SeparatorElement extends BaseStyle {
   dividerChar?: string;
 }
 
-export type Element<T extends object = any> =
+export type PromptElement<T extends object = any> =
   | InputElement<T>
-  | SelectElement
+  | SelectElement<T>
   | CheckboxElement<T>
   | SeparatorElement;

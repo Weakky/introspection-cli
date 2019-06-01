@@ -1,14 +1,14 @@
-import * as React from "react";
-import { Box, Color } from "ink";
-import InkTextInput from "ink-text-input";
+import { Box, Color } from 'ink'
+import InkTextInput from 'ink-text-input'
+import * as React from 'react'
 
 interface TextInputProps {
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
-  placeholder?: string;
-  focus: boolean;
-  mask?: string;
+  label: string
+  value: string
+  onChange: (value: string) => void
+  placeholder?: string
+  focus: boolean
+  mask?: string
 }
 
 export const TextInput: React.SFC<TextInputProps> = ({
@@ -26,11 +26,11 @@ export const TextInput: React.SFC<TextInputProps> = ({
       placeholder={placeholder}
       onChange={value => {
         if (focus) {
-          onChange(value);
+          onChange(value)
         }
       }}
       showCursor={focus}
       mask={mask}
     />
   </Box>
-);
+)

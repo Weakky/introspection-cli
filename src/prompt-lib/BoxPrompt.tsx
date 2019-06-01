@@ -1,35 +1,37 @@
+import { Box, Text, Color } from "ink";
 import * as React from "react";
-import { Box, Text } from "ink";
-import {
-  CheckboxElement,
-  Element,
-  InputElement,
-  SelectElement,
-  SeparatorElement,
-  SpinnerState,
-} from "./types";
 import { Checkbox } from "./Checkbox";
 import { Divider } from "./Divider";
-import { TextInput } from "./TextInput";
-import { useStdin } from "./useStdin";
-import { SelectItem } from "./SelectItem";
 import {
-  up,
   down,
   isElementCheckbox,
-  isElementSelect,
   isElementInput,
+  isElementSelect,
   isElementSeparator,
+  up,
 } from "./helpers";
+import { SelectItem } from "./SelectItem";
+import { TextInput } from "./TextInput";
+import {
+  CheckboxElement,
+  InputElement,
+  PromptElement,
+  SpinnerState,
+} from "./types";
+import { useStdin } from "./useStdin";
+
+export interface OnSubmitParams {
+  formValues?: Record<string, any>;
+  selectedValue?: any;
+  goBack: boolean;
+  startSpinner: (message?: string) => void;
+  stopSpinner: (state: SpinnerState) => void;
+}
 
 interface Props {
-  elements: Element[];
+  elements: PromptElement[];
   title?: string;
-  onSubmit: (params: {
-    formValues?: Record<string, any>;
-    selectedValue?: any;
-    goBack: boolean;
-  }) => void;
+  onSubmit: (params: OnSubmitParams) => void;
   initialFormValues?: Record<string, any>;
   withBackButton: boolean;
 }
@@ -42,7 +44,7 @@ export const Prompt: React.FC<Props> = props => {
     Record<string, SpinnerState | undefined>
   >({});
   const [cursor, setCursor] = React.useState(0);
-  const elementsWithBack: Element[] = props.withBackButton
+  const elementsWithBack: PromptElement[] = props.withBackButton
     ? [
         ...props.elements,
         {
@@ -54,42 +56,45 @@ export const Prompt: React.FC<Props> = props => {
       ]
     : props.elements;
 
-  useStdin(actionKey => {
-    setCursor(prevCursor => {
-      if (actionKey === "up") {
-        return up(prevCursor, elementsWithBack);
-      }
+  useStdin(
+    actionKey => {
+      setCursor(prevCursor => {
+        if (actionKey === "up") {
+          return up(prevCursor, elementsWithBack);
+        }
 
-      if (actionKey === "down") {
-        return down(prevCursor, elementsWithBack);
-      }
+        if (actionKey === "down") {
+          return down(prevCursor, elementsWithBack);
+        }
 
-      const hoveredElement = elementsWithBack[prevCursor];
+        const hoveredElement = elementsWithBack[prevCursor];
 
-      if (actionKey === "next" && !isElementInput(hoveredElement)) {
-        return down(prevCursor, elementsWithBack);
-      }
+        if (actionKey === "next" && !isElementInput(hoveredElement)) {
+          return down(prevCursor, elementsWithBack);
+        }
 
-      if (
-        actionKey === "submit" &&
-        isElementInput(hoveredElement) &&
-        !!formValues[hoveredElement.identifier]
-      ) {
-        return down(prevCursor, elementsWithBack);
-      }
+        if (
+          actionKey === "submit" &&
+          isElementInput(hoveredElement) &&
+          !!formValues[hoveredElement.identifier]
+        ) {
+          return down(prevCursor, elementsWithBack);
+        }
 
-      if (
-        actionKey === "submit" &&
-        !isElementCheckbox(hoveredElement) &&
-        !isElementSelect(hoveredElement) &&
-        !isElementInput(hoveredElement)
-      ) {
-        return down(prevCursor, elementsWithBack);
-      }
+        if (
+          actionKey === "submit" &&
+          !isElementCheckbox(hoveredElement) &&
+          !isElementSelect(hoveredElement) &&
+          !isElementInput(hoveredElement)
+        ) {
+          return down(prevCursor, elementsWithBack);
+        }
 
-      return prevCursor;
-    });
-  });
+        return prevCursor;
+      });
+    },
+    [cursor, elementsWithBack],
+  );
 
   const onInputChange = (
     value: string | boolean,
@@ -102,22 +107,28 @@ export const Prompt: React.FC<Props> = props => {
   };
 
   const addSpinner = (spinnerCursor: number) => {
-    return () => {
-      setSpinnerByCursor(prev => ({ ...prev, [spinnerCursor]: "running" }));
+    return (message?: string) => {
+      setSpinnerByCursor(prev => ({
+        ...prev,
+        [spinnerCursor]: { state: "running", message },
+      }));
     };
   };
 
   const removeSpinner = (spinnerCursor: number) => {
     return (state: Exclude<SpinnerState, "running">) => {
-      setSpinnerByCursor(prev => ({
-        ...prev,
-        [spinnerCursor]: state,
-      }));
+      setSpinnerByCursor(prev => ({ ...prev, [spinnerCursor]: state }));
     };
   };
 
-  const submitPrompt = (value: any, goBack: boolean = false) => {
-    props.onSubmit({ formValues, selectedValue: value, goBack });
+  const submitPrompt = (value: any, goBack: boolean, elemIndex: number) => {
+    props.onSubmit({
+      formValues,
+      selectedValue: value,
+      goBack,
+      startSpinner: addSpinner(elemIndex),
+      stopSpinner: removeSpinner(elemIndex),
+    });
   };
 
   return (
@@ -175,19 +186,11 @@ export const Prompt: React.FC<Props> = props => {
                   focus={cursor === elemIndex}
                   spinnerState={spinnersByCursor[elemIndex]}
                   onSelect={async value => {
-                    if (
-                      e.onSelect &&
-                      spinnersByCursor[elemIndex] !== "running"
-                    ) {
-                      return e.onSelect({
-                        value,
-                        startSpinner: addSpinner(elemIndex),
-                        stopSpinner: removeSpinner(elemIndex),
-                        submitPrompt: () => submitPrompt(value),
-                      });
-                    }
+                    const spinner = spinnersByCursor[elemIndex];
 
-                    submitPrompt(value);
+                    if (!spinner || spinner.state !== "running") {
+                      return submitPrompt(value, false, elemIndex);
+                    }
                   }}
                 />
               </Box>
@@ -201,7 +204,7 @@ export const Prompt: React.FC<Props> = props => {
           label="Back"
           isBackButton
           onSelect={() => {
-            submitPrompt(undefined, true);
+            submitPrompt(undefined, true, elementsWithBack.length - 1);
           }}
           focus={cursor === elementsWithBack.length - 1}
           spinnerState={undefined}
