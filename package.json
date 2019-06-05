@@ -34,7 +34,6 @@
   "devDependencies": {
     "@types/dotenv": "^6.1.1",
     "@types/figures": "^3.0.1",
-    "@types/ink-spinner": "^2.0.1",
     "@types/js-yaml": "^3.12.1",
     "@types/json-stable-stringify": "^1.0.32",
     "@types/jsonwebtoken": "^8.3.2",

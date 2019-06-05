@@ -58,11 +58,6 @@
   dependencies:
     "@types/node" "*"
 
-"@types/cli-spinners@*":
-  version "1.3.0"
-  resolved "https://registry.yarnpkg.com/@types/cli-spinners/-/cli-spinners-1.3.0.tgz#631f5eec89e519447d326b12b2051ce40c88c0ea"
-  integrity sha512-hs+1QSCZC5/yZPNqTOC6Q/ic8DmRna65H2GpvC8zlXjgWZrQyYBD5T5dJafo70bfDTXrBO9c/j5cw3/nY/qMiA==
-
 "@types/concat-stream@^1.6.0":
   version "1.6.0"
   resolved "https://registry.yarnpkg.com/@types/concat-stream/-/concat-stream-1.6.0.tgz#394dbe0bb5fee46b38d896735e8b68ef2390d00d"
@@ -114,23 +109,6 @@
   integrity sha1-yayFsqX9GENbjIXZ7LUObWyJP/g=
   dependencies:
     "@types/node" "*"
-
-"@types/ink-spinner@^2.0.1":
-  version "2.0.1"
-  resolved "https://registry.yarnpkg.com/@types/ink-spinner/-/ink-spinner-2.0.1.tgz#510d6e5e5edbf41e7fc60c82dcb28c0d63a17f5c"
-  integrity sha512-O+9kFBwwsMpNYjhchtF99clccwXmvKdtKd99fdRiGq/kQAx9YmIfybHH1UoCmetFCXlKBTnwx/iwXDZRoSgBEg==
-  dependencies:
-    "@types/cli-spinners" "*"
-    "@types/ink" "*"
-    chalk "^2.1.0"
-
-"@types/ink@*":
-  version "0.5.1"
-  resolved "https://registry.yarnpkg.com/@types/ink/-/ink-0.5.1.tgz#6d6e7f2d1e3436385ff6bd2cf7ca68a8bebbcb00"
-  integrity sha512-B2LoPN8Jedf1e7IVVhCztdooZ21NZWoFzunXXJostqxZ5Qdr/V2UbwlFUooKJ+Z0gfSYX5NWeA6GGi3S88p3ig==
-  dependencies:
-    "@types/node" "*"
-    "@types/prop-types" "*"
 
 "@types/js-yaml@^3.12.1":
   version "3.12.1"
